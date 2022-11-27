@@ -209,7 +209,12 @@ def main(args):
     
             # Does nothing if the alignments have already been computed
             precompute_alignments(tags, seqs, alignment_dir, args)
-        
+            unrelaxed_output_path = os.path.join(
+                output_directory, f'{output_name}_unrelaxed.pdb'
+            )
+            if os.path.exists(unrelaxed_output_path):
+                print(f'protein {unrelaxed_output_path} exists, skipping')
+                continue
             feature_dict = feature_dicts.get(tag, None)
             if(feature_dict is None):
                 feature_dict = generate_feature_dict(
@@ -270,9 +275,7 @@ def main(args):
                 args.subtract_plddt
             )
 
-            unrelaxed_output_path = os.path.join(
-                output_directory, f'{output_name}_unrelaxed.pdb'
-            )
+
 
             with open(unrelaxed_output_path, 'w') as fp:
                 fp.write(protein.to_pdb(unrelaxed_protein))
