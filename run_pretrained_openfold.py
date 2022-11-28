@@ -285,7 +285,11 @@ def main(args):
             if not args.skip_relaxation:
                 # Relax the prediction.
                 logger.info(f"Running relaxation on {unrelaxed_output_path}...")
-                relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name)
+                try:
+                    relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name)
+                except Exception as e:
+                    print(e)
+                    continue
 
             if args.save_outputs:
                 output_dict_path = os.path.join(
