@@ -206,12 +206,19 @@ def main(args):
             output_name = f'{tag}_{args.config_preset}'
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
-    
-            # Does nothing if the alignments have already been computed
-            precompute_alignments(tags, seqs, alignment_dir, args)
             unrelaxed_output_path = os.path.join(
                 output_directory, f'{output_name}_unrelaxed.pdb'
             )
+            if os.path.exists(f'{output_name}.tmp'):
+                print(f'{output_name}.tmp exists, skipping')
+                continue
+            else:
+                os.close(os.open(f'{output_name}.tmp', os.O_CREAT))
+            # Does nothing if the alignments have already been computed
+            precompute_alignments(tags, seqs, alignment_dir, args)
+
+            
+            
             if os.path.exists(unrelaxed_output_path):
                 print(f'protein {unrelaxed_output_path} exists, skipping')
                 continue
@@ -279,9 +286,9 @@ def main(args):
 
             with open(unrelaxed_output_path, 'w') as fp:
                 fp.write(protein.to_pdb(unrelaxed_protein))
-
-            logger.info(f"Output written to {unrelaxed_output_path}...")
             
+            logger.info(f"Output written to {unrelaxed_output_path}...")
+            os.remove(f'{output_name}.tmp')
             if not args.skip_relaxation:
                 # Relax the prediction.
                 logger.info(f"Running relaxation on {unrelaxed_output_path}...")
